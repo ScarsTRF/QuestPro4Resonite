@@ -11,7 +11,7 @@ namespace QuestProModule.ALXR
     public class ALXRModule : IQuestProModule
     {
         private IPAddress localAddr;
-        private const int DEFAULT_PORT = 13191;
+        private int DEFAULT_PORT = 13191;
         
         private TcpClient client;
         private NetworkStream stream;
@@ -31,11 +31,12 @@ namespace QuestProModule.ALXR
         public bool Connected
         { get { return connected; } }
 
-        public async Task<bool> Initialize(string ipconfig)
+        public async Task<bool> Initialize(string ipconfig, int port)
         {
             try
             {
                 localAddr = IPAddress.Parse(ipconfig);
+                DEFAULT_PORT = port;
 
                 cancellationTokenSource = new CancellationTokenSource();
 
@@ -427,6 +428,31 @@ namespace QuestProModule.ALXR
         public void JawState(bool input)
         {
             InvertJaw = input;
+        }
+
+        public void appPort(int input)
+        {
+            DEFAULT_PORT = input;
+        }
+
+        public void appIP(string input)
+        {
+            localAddr = IPAddress.Parse(input);
+        }
+
+        Task<bool> IQuestProModule.Initialize(string ipaddress)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IQuestProModule.Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IQuestProModule.Teardown()
+        {
+            throw new NotImplementedException();
         }
     }
 }

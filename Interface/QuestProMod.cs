@@ -11,7 +11,10 @@ namespace QuestProModule
     public class QuestProMod : ResoniteMod
     {
 		[AutoRegisterConfigKey]
-		private readonly static ModConfigurationKey<string> QuestProIP = new ModConfigurationKey<string>("quest_pro_IP", "Quest Pro IP. This can be found in ALXR's settings, requires a restart to take effect", () => "127.0.0.1");
+		private readonly static ModConfigurationKey<string> QuestProIP = new ModConfigurationKey<string>("quest_pro_IP", "Quest Pro IP. This can be found in ALXR's settings, requires a restart to take effect (DEFAULT: 127.0.0.1)", () => "127.0.0.1");
+
+        [AutoRegisterConfigKey]
+        private readonly static ModConfigurationKey<int> QuestProPort = new ModConfigurationKey<int>("quest_pro_port", "Quest Pro port. This can be found in ALXR's settings, requires a restart to take effect (DEFAULT: 13191)", () => 13191);
 
         [AutoRegisterConfigKey]
         private readonly static ModConfigurationKey<float> EyeOpennessExponent = new ModConfigurationKey<float>("quest_pro_eye_open_exponent", "Exponent to apply to eye openness.  Can be updated at runtime.  Useful for applying different curves for how open your eyes are.", () => 1.0f);
@@ -23,7 +26,7 @@ namespace QuestProModule
         private static readonly ModConfigurationKey<float> EyeMovementMultiplier = new ModConfigurationKey<float>("quest_pro_eye_movement_multiplier", "Multiplier to adjust the movement range of the user's eyes.  Can be updated at runtime.", () => 1.0f);
 
         [AutoRegisterConfigKey]
-        private static readonly ModConfigurationKey<float> PupilSize = new ModConfigurationKey<float>("quest_pro_eye_pupil_size", "Used to adjust pupil size to a custom static size. (Best values are between 0.2 and 0.8, though might vary.", () => 0.5f);
+        private static readonly ModConfigurationKey<float> PupilSize = new ModConfigurationKey<float>("quest_pro_eye_pupil_size", "Used to adjust pupil size to a custom static size. (Best values are between 0.2 and 0.8, though might vary.)", () => 0.5f);
 
         [AutoRegisterConfigKey]
         private static readonly ModConfigurationKey<bool> InvertJaw = new ModConfigurationKey<bool>("quest_pro_Invert_Jaw", "Value to invert Jaw Left/Right movement. (Only use if your jaw is inverted from your movements)", () => false);
@@ -64,7 +67,7 @@ namespace QuestProModule
                 {
                     qpm = new ALXRModule();
 
-                    _ = qpm.Initialize(_config.GetValue(QuestProIP));
+                    _ = qpm.Initialize(_config.GetValue(QuestProIP), _config.GetValue(QuestProPort));
                     qpm.JawState(_config.GetValue(InvertJaw));
 
                     edm = new EyeDevice();
@@ -121,7 +124,7 @@ namespace QuestProModule
             {
                 qpm.Teardown();
                 Thread.Sleep(1000);
-                _ = qpm.Initialize(_config.GetValue(QuestProIP));
+                _ = qpm.Initialize(_config.GetValue(QuestProIP), _config.GetValue(QuestProPort));
             }
 
             if (@event.Key == InvertJaw)
@@ -138,6 +141,22 @@ namespace QuestProModule
                 {
                     scale = scale * 0.01f;
                     edm.SetPupilSize(scale);
+                }
+            }
+
+            if (@event.Key == QuestProIP)
+            {
+                if (@event.Config.TryGetValue(QuestProIP, out string ip))
+                {
+                    qpm.appIP(ip);
+                }
+            }
+
+            if (@event.Key == QuestProPort)
+            {
+                if (@event.Config.TryGetValue(QuestProPort, out int port))
+                {
+                    qpm.appPort(port);
                 }
             }
         }
